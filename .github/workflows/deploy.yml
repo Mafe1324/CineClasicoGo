@@ -30,10 +30,7 @@ jobs:
       - name: Upload site files
         uses: actions/upload-pages-artifact@v3
         with:
-          path: |
-            index.html
-            script.js
-            styles.css
+          path: .
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
