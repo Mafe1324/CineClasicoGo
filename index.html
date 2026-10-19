@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CineClásico Go</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-theme="vintage" data-layout="grid">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="reel">🎞️</span>
+      <h1>CineClásico Go</h1>
+    </div>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="buscar">Buscar</button>
+      <button class="tab-btn" data-tab="watchlist">Mi Watchlist</button>
+      <button class="tab-btn" data-tab="cines">Cines cercanos</button>
+      <button class="tab-btn" data-tab="ajustes">Ajustes</button>
+      <button class="tab-btn" data-tab="actividad">Actividad</button>
+    </nav>
+  </header>
+
+  <div id="apiKeyBanner" class="ticket-banner hidden">
+    <p><strong>Falta tu API key de OMDb.</strong> Consigue una gratis en
+      <a href="https://www.omdbapi.com/apikey.aspx" target="_blank" rel="noopener">omdbapi.com/apikey.aspx</a>
+      y pégala aquí:</p>
+    <div class="apikey-row">
+      <input id="apiKeyInput" type="text" placeholder="Pega tu OMDb API key">
+      <button id="saveApiKey" class="btn-primary">Guardar</button>
+    </div>
+  </div>
+
+  <main>
+    <section id="tab-buscar" class="tab-panel active">
+      <div class="search-row">
+        <input id="searchInput" type="text" placeholder="Busca una película clásica… ej. Casablanca">
+        <button id="searchBtn" class="btn-primary">Buscar</button>
+        <label class="classic-toggle">
+          <input type="checkbox" id="onlyClassics" checked>
+          Solo clásicos (antes de 1990)
+        </label>
+      </div>
+      <p id="searchStatus" class="status-text"></p>
+      <div id="results" class="movie-grid"></div>
+    </section>
+
+    <section id="tab-watchlist" class="tab-panel">
+      <h2>Mi Watchlist</h2>
+      <p class="hint">Películas y series que guardaste para ver después.</p>
+      <div id="watchlistGrid" class="movie-grid"></div>
+    </section>
+
+    <section id="tab-cines" class="tab-panel">
+      <h2>Cines cercanos</h2>
+      <p class="hint">Usa el GPS de tu dispositivo para ver salas de arte, filmotecas y autocinemas simulados cerca de ti.</p>
+      <button id="gpsBtn" class="btn-primary">📍 Buscar cines cerca de mí</button>
+      <p id="gpsStatus" class="status-text"></p>
+      <ul id="cinemaList" class="cinema-list"></ul>
+
+      <div class="geofence-box">
+        <h3>Geofencing</h3>
+        <p class="hint">Activa el rastreo continuo. Si tu posición cambia lo suficiente cerca de un cine simulado, recibirás una alerta automática.</p>
+        <button id="geofenceBtn" class="btn-secondary">Activar geofencing</button>
+        <p id="geofenceStatus" class="status-text"></p>
+      </div>
+    </section>
+
+    <section id="tab-ajustes" class="tab-panel">
+      <h2>Ajustes de perfil</h2>
+
+      <h3>Interfaz</h3>
+      <div class="settings-grid">
+        <label>Tema visual
+          <select id="themeSelect">
+            <option value="vintage">Oscuro Vintage</option>
+            <option value="sepia">Sepia Clásico</option>
+            <option value="light">Claro</option>
+          </select>
+        </label>
+        <label>Tamaño de fuente
+          <select id="fontSizeSelect">
+            <option value="small">Pequeño</option>
+            <option value="medium" selected>Mediano</option>
+            <option value="large">Grande</option>
+          </select>
+        </label>
+        <label>Disposición
+          <select id="layoutSelect">
+            <option value="grid">Cuadrícula 2×2</option>
+            <option value="list">Lista</option>
+          </select>
+        </label>
+      </div>
+
+      <h3>Contenido</h3>
+      <div class="settings-grid">
+        <label>Décadas favoritas
+          <select id="decadesSelect" multiple size="4">
+            <option value="30s">30s</option>
+            <option value="40s">40s</option>
+            <option value="50s">50s</option>
+            <option value="60s">60s</option>
+            <option value="70s">70s</option>
+            <option value="80s">80s</option>
+          </select>
+        </label>
+        <label>Géneros favoritos
+          <select id="genresSelect" multiple size="4">
+            <option value="Film Noir">Film Noir</option>
+            <option value="Cine Mudo">Cine Mudo</option>
+            <option value="Terror Clásico">Terror Clásico</option>
+            <option value="Comedia">Comedia</option>
+            <option value="Drama">Drama</option>
+          </select>
+        </label>
+        <label>Control parental (edad mínima)
+          <select id="parentalSelect">
+            <option value="0">Sin restricción</option>
+            <option value="13">13+</option>
+            <option value="16">16+</option>
+            <option value="18">18+</option>
+          </select>
+        </label>
+        <label>Idioma de subtítulos
+          <select id="subtitleSelect">
+            <option value="es">Español</option>
+            <option value="en">Inglés</option>
+            <option value="none">Sin subtítulos</option>
+          </select>
+        </label>
+      </div>
+
+      <button id="saveSettings" class="btn-primary">Guardar preferencias</button>
+      <p id="settingsStatus" class="status-text"></p>
+
+      <h3>Notificaciones</h3>
+      <button id="notifPermBtn" class="btn-secondary">Activar notificaciones</button>
+      <button id="notifDailyBtn" class="btn-secondary">Programar recomendación del día</button>
+      <button id="notifPushBtn" class="btn-secondary">Simular notificación push</button>
+      <p id="notifStatus" class="status-text"></p>
+
+      <h3>Tu API key de OMDb</h3>
+      <div class="apikey-row">
+        <input id="apiKeyInput2" type="text" placeholder="Pega tu OMDb API key">
+        <button id="saveApiKey2" class="btn-primary">Guardar</button>
+      </div>
+    </section>
+
+    <section id="tab-actividad" class="tab-panel">
+      <h2>Registro de actividad</h2>
+      <p class="hint">Esto simula <code>user_activity_logs</code>: cada acción que haces en la app se guarda con fecha, hora, pantalla y datos relevantes. En producción, cada fila se enviaría a la base de datos en la nube (ver <code>reportActivity()</code> en <code>script.js</code>).</p>
+      <button id="clearLogBtn" class="btn-secondary">Limpiar registro</button>
+      <div class="log-table-wrap">
+        <table id="logTable">
+          <thead>
+            <tr><th>Fecha/Hora</th><th>Pantalla</th><th>Acción</th><th>Detalle</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div id="detailModal" class="modal hidden">
+    <div class="modal-content">
+      <button id="closeModal" class="modal-close">✕</button>
+      <div id="detailBody"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
